@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorator="layouts/default">
+  <body>
+    <div id="page" layout:fragment="content">
+      <div class="container">
+        <form th:object="${projeto}" method="POST" th:action="@{/projetos/salvar}">
+          <div class="form-group row">
+            <div class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+              <div th:each="detailedError : ${#fields.detailedErrors()}">
+                <span th:text="${detailedError.message}"></span>
+              </div>
+            </div>
+          </div>
+    
+          <div class="form-group col-md-6">
+            <label for="id" th:text = "#{projeto.id}"></label>
+             <input type="text" class="form-control" id="id" th:field="*{id}" readOnly="readonly"/>
+          </div>
+      
+          <div class="form-group col-md-6">
+            <label for="nome" th:text = "#{projeto.nome}"></label> 
+            <input type="text" class="form-control" id="nome" name="nome" th:field="*{nome}"/>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="dataInicio" th:text = "#{projeto.inicio}"></label> 
+            <input type="date" class="form-control" id="dataInicio" name="dataInicio" th:field="*{dataInicio}"/>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="dataPrevisaoFim" th:text = "#{projeto.previsao}"></label> 
+            <input type="date" class="form-control" id="dataPrevisaoFim" name="dataPrevisaoFim" th:field="*{dataPrevisaoFim}"/>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="dataFim" th:text = "#{projeto.fim}"></label> 
+            <input type="date" class="form-control" id="dataFim" name="dataFim" th:field="*{dataFim}"/>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="orcamento" th:text = "#{projeto.orcamento}"></label> 
+            <input type="number" class="form-control" id="orcamento" th:field="*{orcamento}" name="orcamento"/>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="descricao" th:text = "#{projeto.descricao}"></label> 
+            <input type="text" class="form-control" id="descricao" name="descricao" th:field="*{descricao}"/>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="nome" th:text = "#{projeto.gerente}"></label> 
+            <select th:field="*{gerente}" class="form-control">
+            <option value="" th:text = "#{comum.select.selecione}"></option>
+            <option th:each="gerente: ${pessoas}" th:value="${gerente.id}" th:text="${gerente.nome}"></option>
+            </select>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="risco" th:text = "#{projeto.risco}"></label> 
+            <select id="risco" name="risco" class="form-control" th:field="*{risco}">
+              <option value="" th:text = "#{comum.select.selecione}"></option>
+              <option
+                th:each="risco : ${T(br.com.xpto.projetos.model.Risco).values()}"
+                th:value="${risco}" 
+                th:text="${risco.nome}"></option>
+            </select>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="status" th:text = "#{projeto.status}"></label> 
+            <select id="status" name="status" class="form-control" th:field="*{status}">
+              <option value="" th:text = "#{comum.select.selecione}"></option>
+              <option
+                th:each="status : ${T(br.com.xpto.projetos.model.Status).values()}"
+                th:value="${status}" 
+                th:text="${status.nome}"></option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn btn-success" th:text = "#{comum.botao.salvar}"></button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

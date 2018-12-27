@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorator="layouts/default">
+  <body>
+    <div id="page" layout:fragment="content">
+      <div class="container">
+      
+        <p class="alert alert-danger" th:if="${error != null}" th:text="${error}"></p>
+        
+        <div id="listaDeProjetos">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th><label th:text = "#{projeto.id}" ></label></th>
+                <th><label th:text = "#{projeto.nome}" ></label></th>
+                <th><label th:text = "#{projeto.inicio}" ></label></th>
+                <th><label th:text = "#{projeto.previsao}" ></label></th>
+                <th><label th:text = "#{projeto.fim}" ></label></th>
+                <th><label th:text = "#{projeto.descricao}" ></label></th>
+                <th><label th:text = "#{projeto.status}" ></label></th>
+                <th><label th:text = "#{projeto.orcamento}" ></label></th>
+                <th><label th:text = "#{projeto.risco}" ></label></th>
+                <th><label th:text = "#{projeto.gerente}" ></label></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tr th:each="projeto : ${projetos}">
+              <td><span th:text="${projeto.id}"></span></td>
+              <td><span th:text="${projeto.nome}"></span></td>
+              <td><span th:text="${projeto.dataInicio} ? ${#dates.format(projeto.dataInicio, 'dd/MM/yyyy')}"></span></td>
+              <td><span th:text="${projeto.dataPrevisaoFim} ? ${#dates.format(projeto.dataPrevisaoFim, 'dd/MM/yyyy')}"></span></td>
+              <td><span th:text="${projeto.dataFim} ? ${#dates.format(projeto.dataFim, 'dd/MM/yyyy')}"></span></td>
+              <td><span th:text="${projeto.descricao}"></span></td>
+              <td><span th:text="${projeto.statusStr}"></span></td>
+              <td><span th:text="${projeto.orcamento}"></span></td>
+              <td><span th:text="${projeto.riscoStr}"></span></td>
+              <td><span th:text="${projeto.gerente.nome}"></span></td>
+              <td>
+                <div class="row">
+                  <div class="col-md-4">
+                    <a th:href="@{/projetos/editar/{id}(id=${projeto.id})}"> 
+                      <button type="button" class="btn btn-success">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                      </button>
+                    </a>
+                  </div>
+                  
+                  <div class="col-md-4">
+                    <a th:href="@{/projetos/remover/{id}(id=${projeto.id})}"> 
+                      <button type="button" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-trash"></span>
+                      </button>
+                    </a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="panel-footer">
+          <a th:href="@{/projetos/adicionar}" >
+              <button type="button" class="btn btn-primary" th:text = "#{comum.botao.adicionar}">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button> 
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
