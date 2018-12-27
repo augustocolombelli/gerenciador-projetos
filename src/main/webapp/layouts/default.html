@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:replace="fragments/header :: head"></head>
+<body>
+  <div class="navbar navbar-default bg-primary">
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="#" th:href="@{/home}">Home</a></li>
+        <li><a href="#" th:href="@{/pessoas/listar}">Pessoas</a></li>
+        <li><a href="#" th:href="@{/projetos/listar}">Projetos</a></li>
+      </ul>
+    </div>
+  </div>
+  <div layout:fragment="content"></div>
+  <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
