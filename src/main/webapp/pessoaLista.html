@@ -6,6 +6,7 @@
     <div id="page" layout:fragment="content">
   
       <div class="container">
+      <p class="alert alert-danger" th:if="${error != null}" th:text="${error}"></p>
         <div id="listaDePessoas">
           <table class="table table-hover">
             <thead>

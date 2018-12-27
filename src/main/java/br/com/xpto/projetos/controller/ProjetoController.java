@@ -22,55 +22,57 @@ import br.com.xpto.projetos.service.ProjetoService;
 @Controller
 @RequestMapping("/projetos")
 public class ProjetoController {
-	
+
 	@Autowired
 	private ProjetoService service;
-	
+
 	@Autowired
 	private PessoaService pessoaService;
-	
+
 	@Autowired
 	private MessageLocaleService messageLocaleService;
-	
-	@RequestMapping(value="/listar", method=RequestMethod.GET)
-	public ModelAndView listarProjetos(){
+
+	@RequestMapping(value = "/listar", method = RequestMethod.GET)
+	public ModelAndView listarProjetos() {
 		ModelAndView mv = new ModelAndView("/projetoLista");
 		mv.addObject("projetos", service.buscaTodos());
 		return mv;
 	}
-	
-	@RequestMapping(value="/adicionar", method=RequestMethod.GET)
-	public ModelAndView adicionarProjeto(Projeto projeto){
+
+	@RequestMapping(value = "/adicionar", method = RequestMethod.GET)
+	public ModelAndView adicionarProjeto(Projeto projeto) {
 		ModelAndView mv = new ModelAndView("/projetoFormulario");
 		mv.addObject("pessoas", pessoaService.buscaTodos());
 		mv.addObject("projeto", projeto);
 		return mv;
 	}
-	
-	@RequestMapping(value="/editar/{id}", method=RequestMethod.GET)
-	public ModelAndView editarProjeto(@PathVariable("id") Long id){
+
+	@RequestMapping(value = "/editar/{id}", method = RequestMethod.GET)
+	public ModelAndView editarProjeto(@PathVariable("id") Long id) {
 		return adicionarProjeto(service.buscaPeloId(id));
 	}
-	
-	@RequestMapping(value="/remover/{id}", method=RequestMethod.GET)
-	public ModelAndView removerProjeto(@PathVariable("id") Long id){
-			service.remove(id);
-			return listarProjetos();
+
+	@RequestMapping(value = "/remover/{id}", method = RequestMethod.GET)
+	public ModelAndView removerProjeto(@PathVariable("id") Long id) {
+		service.remove(id);
+		return listarProjetos();
 	}
-	
-	@RequestMapping(value="/salvar", method=RequestMethod.POST)
-	public ModelAndView salvarProjeto(@Valid Projeto projeto, BindingResult result){
-		if(result.hasErrors()) {
+
+	@RequestMapping(value = "/salvar", method = RequestMethod.POST)
+	public ModelAndView salvarProjeto(@Valid Projeto projeto, BindingResult result) {
+		if (result.hasErrors()) {
 			return adicionarProjeto(projeto);
 		}
 		service.salva(projeto);
 		return listarProjetos();
 	}
-	
-	@ExceptionHandler({StatusIniciadoNaoPermiteExclusaoException.class, StatusEmAndamentoNaoPermiteExclusaoException.class, StatusEncerradoNaoPermiteExclusaoException.class})
+
+	@ExceptionHandler({ StatusIniciadoNaoPermiteExclusaoException.class,
+			StatusEmAndamentoNaoPermiteExclusaoException.class, StatusEncerradoNaoPermiteExclusaoException.class })
 	public ModelAndView gerenciaExcecoes(RuntimeException ex) {
-	    ModelAndView modelAndView = new ModelAndView("/projetoLista", "error", messageLocaleService.getMessage(ex.getMessage()));
-	    modelAndView.addObject("projetos", service.buscaTodos());
+		ModelAndView modelAndView = new ModelAndView("/projetoLista", "error",
+				messageLocaleService.getMessage(ex.getMessage()));
+		modelAndView.addObject("projetos", service.buscaTodos());
 		return modelAndView;
 	}
 
