@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +26,9 @@ import br.com.xpto.projetos.repository.ProjetoRepository;
 @RunWith(MockitoJUnitRunner.class)
 public class ProjetoServiceTest {
 
+	private static final String NOME_MEMBRO = "Nome qualquer";
+	private static final long ID_PROJETO = 1L;
+
 	@InjectMocks
 	private ProjetoService service;
 	
@@ -34,159 +37,108 @@ public class ProjetoServiceTest {
 	
 	@Mock
 	private PessoaService pessoaService;
+	
+	private Projeto projetoQualquer;
+
+	@Before
+	public void setUp() {
+		projetoQualquer = new Projeto();
+	}
+	
+	@Test
+	public void deveIncluirMembroJaCadastradoNoProjeto() {
+		Pessoa membroParaAdicionarProjeto = new Pessoa();
+		membroParaAdicionarProjeto.setNome(NOME_MEMBRO);
+		
+		Pessoa funcionarioCadastrado = criaMembroFuncionario();
+		
+		when(repository.findById(ID_PROJETO)).thenReturn(Optional.of(projetoQualquer));
+		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.of(funcionarioCadastrado));
+		
+		service.adicionaMembroNoProjeto(ID_PROJETO, membroParaAdicionarProjeto);
+	
+		verify(repository, times(1)).save(projetoQualquer);
+	}
 
 	@Test
-	public void deveAdicionarMembroExistenteNoProjeto() {
-		Long idDoProjeto = 1L;
-		String nomeDoMembro = "Juca";
-		
+	public void deveCadastrarNovaPessoaEIncluirNoProjeto() {
 		Pessoa membroParaAdicionarProjeto = new Pessoa();
-		membroParaAdicionarProjeto.setNome(nomeDoMembro);
+		membroParaAdicionarProjeto.setNome(NOME_MEMBRO);
+		membroParaAdicionarProjeto.setFuncionario(true);
 		
-		Projeto projeto = new Projeto();
-		projeto.setNome("Projeto - Beira Rio");
-		when(repository.findById(idDoProjeto)).thenReturn(Optional.of(projeto));
+		when(repository.findById(ID_PROJETO)).thenReturn(Optional.of(projetoQualquer));
+		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.empty());
 		
-		Pessoa pessoa = new Pessoa();
-		pessoa.setFuncionario(true);
-		pessoa.setNome(nomeDoMembro);
-		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.of(pessoa));
-		
-		service.adicionaMembroNoProjeto(idDoProjeto, membroParaAdicionarProjeto);
+		service.adicionaMembroNoProjeto(ID_PROJETO, membroParaAdicionarProjeto);
 	
-		verify(repository, times(1)).save(projeto);
+		verify(repository, times(1)).save(projetoQualquer);
+		
+		ArgumentCaptor<Pessoa> membroCaptured = forClass(Pessoa.class);
+		verify(pessoaService, times(1)).salva(membroCaptured.capture());
+		
+		assertEquals(membroCaptured.getValue().getNome(), membroParaAdicionarProjeto.getNome());
+		assertEquals(membroCaptured.getValue().getFuncionario(), membroParaAdicionarProjeto.getFuncionario());
 	}
 	
 	@Test(expected=ProjetoNaoCadastradoException.class)
-	public void naoDeveAdicionarMembroSeProjetoNaoEstaCadastrado() {
-		Long idDoProjeto = 1L;
-		String nomeDoMembro = "Juca";
+	public void naoDeveAdicionarMembroSeProjetoNaoExistir() {
+		Pessoa funcionarioParaAdicionarProjeto = new Pessoa();
+		funcionarioParaAdicionarProjeto.setNome(NOME_MEMBRO);
 		
-		Pessoa membroParaAdicionarProjeto = new Pessoa();
-		membroParaAdicionarProjeto.setNome(nomeDoMembro);
+		Pessoa funcionarioCadastrado = criaMembroFuncionario();
 		
-		Projeto projeto = new Projeto();
-		projeto.setNome("Projeto - Beira Rio");
-		when(repository.findById(idDoProjeto)).thenReturn(Optional.empty());
+		when(repository.findById(ID_PROJETO)).thenReturn(Optional.empty());
+		when(pessoaService.buscaPeloNome(funcionarioParaAdicionarProjeto.getNome())).thenReturn(Optional.of(funcionarioCadastrado));
 		
-		Pessoa pessoa = new Pessoa();
-		pessoa.setFuncionario(true);
-		pessoa.setNome(nomeDoMembro);
-		Mockito.when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.of(pessoa));
-		
-		service.adicionaMembroNoProjeto(idDoProjeto, membroParaAdicionarProjeto);
+		service.adicionaMembroNoProjeto(ID_PROJETO, funcionarioParaAdicionarProjeto);
 	}
 	
-	@Test
-	public void deveCadastrarNovaPessoaQuandoMembroNaoExistir() {
-		Long idDoProjeto = 1L;
-		String nomeDoMembro = "Juca";
-		
+	@Test(expected=MembroInformadoNaoFuncionarioException.class)
+	public void naoDeveIncluirPessoaQuandoNaoInformadoAtribuicao() {
 		Pessoa membroParaAdicionarProjeto = new Pessoa();
-		membroParaAdicionarProjeto.setNome(nomeDoMembro);
-		membroParaAdicionarProjeto.setFuncionario(true);
+		membroParaAdicionarProjeto.setNome(NOME_MEMBRO);
 		
-		
-		Projeto projeto = new Projeto();
-		projeto.setNome("Projeto - Beira Rio");
-		when(repository.findById(idDoProjeto)).thenReturn(Optional.of(projeto));
-		
-		Pessoa pessoa = new Pessoa();
-		pessoa.setFuncionario(true);
-		pessoa.setNome(nomeDoMembro);
+		when(repository.findById(ID_PROJETO)).thenReturn(Optional.of(projetoQualquer));
 		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.empty());
 		
-		service.adicionaMembroNoProjeto(idDoProjeto, membroParaAdicionarProjeto);
+		service.adicionaMembroNoProjeto(ID_PROJETO, membroParaAdicionarProjeto);
+	}
 	
-		verify(repository, times(1)).save(projeto);
+	@Test(expected=MembroInformadoNaoFuncionarioException.class)
+	public void naoDeveIncluirPessoaQuandoNaoForFuncionario() {
+		Pessoa membroParaAdicionarProjeto = criaMembroNaoFuncionario();
 		
-		ArgumentCaptor<Pessoa> membroCaptured = forClass(Pessoa.class);
-		verify(pessoaService, times(1)).salva(membroCaptured.capture());
+		when(repository.findById(ID_PROJETO)).thenReturn(Optional.of(projetoQualquer));
+		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.empty());
 		
-		assertEquals(membroCaptured.getValue().getNome(), membroParaAdicionarProjeto.getNome());
-		assertEquals(membroCaptured.getValue().getFuncionario(), membroParaAdicionarProjeto.getFuncionario());
+		service.adicionaMembroNoProjeto(ID_PROJETO, membroParaAdicionarProjeto);
+	}
+	
+	@Test(expected=MembroInformadoNaoFuncionarioException.class)
+	public void naoDeveAdicionarMembroQueNaoEhFuncionario() {
+		Pessoa membroParaAdicionarProjeto = new Pessoa();
+		membroParaAdicionarProjeto.setNome(NOME_MEMBRO);
+		
+		Pessoa membroNaoFuncionario = criaMembroNaoFuncionario();
+
+		when(repository.findById(ID_PROJETO)).thenReturn(Optional.of(projetoQualquer));
+		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.of(membroNaoFuncionario));
+		
+		service.adicionaMembroNoProjeto(ID_PROJETO, membroParaAdicionarProjeto);
 	}
 
-	
-	@Test(expected=MembroInformadoNaoFuncionarioException.class)
-	public void naoDeveCadastrarNovaPessoaQuandoNaoInformadoSeEhFuncionario() {
-		Long idDoProjeto = 1L;
-		String nomeDoMembro = "Juca";
-		
-		Pessoa membroParaAdicionarProjeto = new Pessoa();
-		membroParaAdicionarProjeto.setNome(nomeDoMembro);
-		
-		Projeto projeto = new Projeto();
-		projeto.setNome("Projeto - Beira Rio");
-		when(repository.findById(idDoProjeto)).thenReturn(Optional.of(projeto));
-		
-		Pessoa pessoa = new Pessoa();
-		pessoa.setFuncionario(true);
-		pessoa.setNome(nomeDoMembro);
-		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.empty());
-		
-		service.adicionaMembroNoProjeto(idDoProjeto, membroParaAdicionarProjeto);
-	
-		verify(repository, times(1)).save(projeto);
-		
-		ArgumentCaptor<Pessoa> membroCaptured = forClass(Pessoa.class);
-		verify(pessoaService, times(1)).salva(membroCaptured.capture());
-		
-		assertEquals(membroCaptured.getValue().getNome(), membroParaAdicionarProjeto.getNome());
-		assertEquals(membroCaptured.getValue().getFuncionario(), membroParaAdicionarProjeto.getFuncionario());
+	private Pessoa criaMembroFuncionario() {
+		Pessoa membroFuncionario = new Pessoa();
+		membroFuncionario.setFuncionario(true);
+		membroFuncionario.setNome(NOME_MEMBRO);
+		return membroFuncionario;
 	}
 	
-	@Test(expected=MembroInformadoNaoFuncionarioException.class)
-	public void naoDeveCadastrarNovaPessoaQuandoNaoEhFuncionario() {
-		Long idDoProjeto = 1L;
-		String nomeDoMembro = "Juca";
-		
-		Pessoa membroParaAdicionarProjeto = new Pessoa();
-		membroParaAdicionarProjeto.setNome(nomeDoMembro);
-		membroParaAdicionarProjeto.setFuncionario(false);
-		
-		Projeto projeto = new Projeto();
-		projeto.setNome("Projeto - Beira Rio");
-		when(repository.findById(idDoProjeto)).thenReturn(Optional.of(projeto));
-		
-		Pessoa pessoa = new Pessoa();
-		pessoa.setFuncionario(true);
-		pessoa.setNome(nomeDoMembro);
-		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.empty());
-		
-		service.adicionaMembroNoProjeto(idDoProjeto, membroParaAdicionarProjeto);
-	
-		verify(repository, times(1)).save(projeto);
-		
-		ArgumentCaptor<Pessoa> membroCaptured = forClass(Pessoa.class);
-		verify(pessoaService, times(1)).salva(membroCaptured.capture());
-		
-		assertEquals(membroCaptured.getValue().getNome(), membroParaAdicionarProjeto.getNome());
-		assertEquals(membroCaptured.getValue().getFuncionario(), membroParaAdicionarProjeto.getFuncionario());
-	}
-	
-	@Test(expected=MembroInformadoNaoFuncionarioException.class)
-	public void naodeveAdicionarMembroExistenteNoProjetoQuandoNaoEhFuncionario() {
-		Long idDoProjeto = 1L;
-		String nomeDoMembro = "Juca";
-		
-		Pessoa membroParaAdicionarProjeto = new Pessoa();
-		membroParaAdicionarProjeto.setNome(nomeDoMembro);
-		
-		
-		Projeto projeto = new Projeto();
-		projeto.setNome("Projeto - Beira Rio");
-		when(repository.findById(idDoProjeto)).thenReturn(Optional.of(projeto));
-		
-		Pessoa pessoa = new Pessoa();
-		pessoa.setFuncionario(true);
-		pessoa.setNome(nomeDoMembro);
-		pessoa.setFuncionario(false);
-		when(pessoaService.buscaPeloNome(membroParaAdicionarProjeto.getNome())).thenReturn(Optional.of(pessoa));
-		
-		service.adicionaMembroNoProjeto(idDoProjeto, membroParaAdicionarProjeto);
-	
-		verify(repository, times(1)).save(projeto);
+	private Pessoa criaMembroNaoFuncionario() {
+		Pessoa membroNaoFuncionario = new Pessoa();
+		membroNaoFuncionario.setNome(NOME_MEMBRO);
+		membroNaoFuncionario.setFuncionario(false);
+		return membroNaoFuncionario;
 	}
 	
 }
