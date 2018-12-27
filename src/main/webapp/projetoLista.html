@@ -9,7 +9,7 @@
         <p class="alert alert-danger" th:if="${error != null}" th:text="${error}"></p>
         
         <div id="listaDeProjetos">
-          <table class="table table-hover">
+          <table class="table table-hover table-sm table-responsive">
             <thead>
               <tr>
                 <th><label th:text = "#{projeto.id}" ></label></th>
@@ -22,6 +22,7 @@
                 <th><label th:text = "#{projeto.orcamento}" ></label></th>
                 <th><label th:text = "#{projeto.risco}" ></label></th>
                 <th><label th:text = "#{projeto.gerente}" ></label></th>
+                <th></th>
                 <th></th>
               </tr>
             </thead>
@@ -37,23 +38,22 @@
               <td><span th:text="${projeto.riscoStr}"></span></td>
               <td><span th:text="${projeto.gerente.nome}"></span></td>
               <td>
-                <div class="row">
-                  <div class="col-md-4">
+                  <div class="col-sm-4">
                     <a th:href="@{/projetos/editar/{id}(id=${projeto.id})}"> 
                       <button type="button" class="btn btn-success">
                         <span class="glyphicon glyphicon-pencil"></span>
                       </button>
                     </a>
                   </div>
-                  
-                  <div class="col-md-4">
+                </td>  
+                <td>
+                  <div class="col-sm-4">
                     <a th:href="@{/projetos/remover/{id}(id=${projeto.id})}"> 
                       <button type="button" class="btn btn-danger">
                         <span class="glyphicon glyphicon-trash"></span>
                       </button>
                     </a>
                   </div>
-                </div>
               </td>
             </tr>
           </table>
