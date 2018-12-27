@@ -1,5 +1,8 @@
 package br.com.xpto.projetos.api;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +34,10 @@ public class PessoaRestController {
 		try {
 			service.adicionaMembroNoProjeto(id, membro);
 			return new ResponseEntity<Projeto>(HttpStatus.OK);
-		} catch (ProjetoNaoCadastradoException | MembroInformadoNaoFuncionarioException ex) {
-			return new ResponseEntity<MensagemErroType>(new  MensagemErroType(messageLocaleService.getMessage(ex.getMessage())), HttpStatus.NOT_FOUND);
+		} catch (ProjetoNaoCadastradoException ex) {
+			return new ResponseEntity<MensagemErroType>(new  MensagemErroType(messageLocaleService.getMessage(ex.getMessage())), NOT_FOUND);
+		} catch (MembroInformadoNaoFuncionarioException ex) {
+			return new ResponseEntity<MensagemErroType>(new  MensagemErroType(messageLocaleService.getMessage(ex.getMessage())), BAD_REQUEST);
 		}
 	}
 
