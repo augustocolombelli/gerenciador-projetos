@@ -66,7 +66,7 @@ public class ProjetoService {
 	}
 
 	private Pessoa criaNovoMembro(Projeto projeto, Pessoa membro) {
-		if (!membro.getFuncionario()) {
+		if (membro.getFuncionario() == null || !membro.getFuncionario()) {
 			throw new MembroInformadoNaoFuncionarioException("projeto.crud.insercao.nao.pode.inserir.membro.que.nao.e.funcionario");
 		}
 		Pessoa membroParaAdicionar = new Pessoa();

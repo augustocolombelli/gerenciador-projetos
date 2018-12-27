@@ -13,6 +13,7 @@ import br.com.xpto.projetos.exception.MembroInformadoNaoFuncionarioException;
 import br.com.xpto.projetos.exception.ProjetoNaoCadastradoException;
 import br.com.xpto.projetos.model.Pessoa;
 import br.com.xpto.projetos.model.Projeto;
+import br.com.xpto.projetos.service.MessageLocaleService;
 import br.com.xpto.projetos.service.ProjetoService;
 
 @RestController
@@ -21,16 +22,18 @@ public class PessoaRestController {
 
 	@Autowired
 	private ProjetoService service;
+	
+	@Autowired
+	private MessageLocaleService messageLocaleService;
 
 	@RequestMapping(value = "/{id}/membro", method = RequestMethod.PUT)
-	public ResponseEntity<Projeto> put(@PathVariable("id") Long id, @RequestBody Pessoa membro) {
+	public ResponseEntity<?> put(@PathVariable("id") Long id, @RequestBody Pessoa membro) {
 		try {
 			service.adicionaMembroNoProjeto(id, membro);
-			return new ResponseEntity<>(HttpStatus.OK);
+			return new ResponseEntity<Projeto>(HttpStatus.OK);
 		} catch (ProjetoNaoCadastradoException | MembroInformadoNaoFuncionarioException ex) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<MensagemErroType>(new  MensagemErroType(messageLocaleService.getMessage(ex.getMessage())), HttpStatus.NOT_FOUND);
 		}
-
 	}
 
 }
